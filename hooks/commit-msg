@@ -9,6 +9,9 @@ import trust_boundary.scan
 def main():
     if len(sys.argv) != 2:
         raise RuntimeError("Expected path to commit message file!")
+
+    print("Looking for bad symbols in the commit message...")
+
     commit_msg_file = sys.argv[1]
     with open(commit_msg_file, "r") as f:
         message = f.read()

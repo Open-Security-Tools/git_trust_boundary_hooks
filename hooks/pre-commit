@@ -3,17 +3,31 @@ import subprocess
 import sys
 import os
 import trust_boundary.errors
+import trust_boundary.scan
 
 
 def main():
+    scanner = trust_boundary.scan.Scanner()
+
     output = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM']).decode('utf-8')
     files = output.splitlines(keepends=False)
-    print(f"You have changed {files}")
+    print(f"Scanning {files}...")
+    for fn in files:
+        # TODO: Handle non text files...
+        with open(fn, "r") as f:
+            content = f.read()
+        scanner.scan_string(context=f"File({fn})", value=content)
+        
     name = os.environ.get("GIT_AUTHOR_NAME")
     email = os.environ.get("GIT_AUTHOR_EMAIL")
     print(f"Name: {name}, Email={email}")
-    
-    # raise trust_boundary.errors.ExitWithMessageError("It has all gone wrong!")
+    scanner.scan_string(context="GitAuthor", value=name)
+    scanner.scan_string(context="GitEmail", value=email)
+
+    if scanner.detections:
+        print(f"Detection of {len(scanner.detections)} bad symbol(s)!")
+        scanner.display_detections()
+        raise trust_boundary.errors.ExitWithMessageError("Bad symbols detected!")
 
 
 if __name__ == "__main__":

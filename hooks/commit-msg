@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+import os
+import trust_boundary.errors
+
+
+def main():
+    if len(sys.argv) != 2:
+        raise RuntimeError("Expected path to commit message file!")
+    commit_msg_file = sys.argv[1]
+    with open(commit_msg_file, "r") as f:
+        message = f.read()
+    print(f"Your message was: {message}")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except trust_boundary.errors.ExitWithMessageError as e:
+        e.display()
+        sys.exit(-1)

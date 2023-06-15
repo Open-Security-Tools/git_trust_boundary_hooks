@@ -9,4 +9,5 @@ rm -rf pre-commit
 rm -rf commit-msg
 rm -rf pre-push
 rm -rf trust_boundary
+rm -rf full_scan
 rm -rf delete-managed-hooks.sh

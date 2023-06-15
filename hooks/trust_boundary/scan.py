@@ -4,7 +4,7 @@ from typing import List, NamedTuple, Tuple
 import os
 import pathlib
 
-BAD_SYMBOL_PATH = os.path.join(pathlib.Path(__file__).parent.resolve(), "bad_symbols")
+BAD_SYMBOL_PATH = os.path.expanduser("~/.bad_symbols")
 
 
 def load_bad_symbols() -> Tuple[str, ...]:

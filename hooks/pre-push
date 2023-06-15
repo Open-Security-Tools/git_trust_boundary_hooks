@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+import os
+import trust_boundary.errors
+import trust_boundary.scan
+
+
+def main():
+    scanner = trust_boundary.scan.Scanner()
+
+    print(f"Looking for bad symbols in full git history: ...")
+
+    history = subprocess.check_output(["--no-pager", "log", "-p", "--all"]).decode('utf-8')
+
+    scanner.scan_string(context=f"GitHistory", value=history)
+        
+    if scanner.detections:
+        print(f"Detection of {len(scanner.detections)} bad symbol(s)!")
+        scanner.display_detections()
+        raise trust_boundary.errors.ExitWithMessageError("Bad symbols detected!")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except trust_boundary.errors.ExitWithMessageError as e:
+        e.display()
+        sys.exit(-1)

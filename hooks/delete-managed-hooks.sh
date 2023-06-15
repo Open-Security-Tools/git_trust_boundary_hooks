@@ -7,5 +7,6 @@ cd "$(dirname "$0")"
 echo "Deleting managed hooks..."
 rm -rf pre-commit
 rm -rf commit-msg
+rm -rf pre-push
 rm -rf trust_boundary
 rm -rf delete-managed-hooks.sh

@@ -3,6 +3,7 @@ import subprocess
 import sys
 import os
 import trust_boundary.errors
+import trust_boundary.scan
 
 
 def main():
@@ -11,7 +12,13 @@ def main():
     commit_msg_file = sys.argv[1]
     with open(commit_msg_file, "r") as f:
         message = f.read()
-    print(f"Your message was: {message}")
+
+    scanner = trust_boundary.scan.Scanner()
+    scanner.scan_string(context="CommitMessage", value=message)
+    if scanner.detections:
+        print(f"Detection of {len(scanner.detections)} bad symbol(s)!")
+        scanner.display_detections()
+        raise trust_boundary.errors.ExitWithMessageError("Bad symbols detected!")
 
 
 if __name__ == "__main__":

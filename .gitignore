@@ -1,1 +1,4 @@
 /hooks/trust_boundary/bad_symbols
+/env/*
+/trust_boundary_hooks.egg-info/*
+*.pyc

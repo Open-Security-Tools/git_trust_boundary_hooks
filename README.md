@@ -55,9 +55,12 @@ pip install -e .
 
 # Install the hooks and set up the global git template
 tbh-setup
-
-# This utility downloads the bad symbol list from a Minio instance.
-# Adapt to your needs...
-
+# NOTE - this will initially fail pending the configuration for downloading bad symbols.
 ```
 
+### Minio for Bad Symbol Storage
+
+If multiple development environments are used then bad symbol definition need central and private coordination.
+
+This implementation downloads the bad symbols from a Minio S3 object store.
+See https://min.io/.

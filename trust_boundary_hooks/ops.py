@@ -60,7 +60,7 @@ class Operations:
 
     @property
     def author_email(self) -> str:
-        return os.environ.get["GIT_AUTHOR_EMAIL"]
+        return os.environ["GIT_AUTHOR_EMAIL"]
 
     def scan_author_metadata(self) -> None:
         log.info("Looking for bad symbols in git author metadata...")

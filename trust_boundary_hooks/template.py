@@ -23,6 +23,14 @@ class Template:
         self._minio_config = os.path.expanduser("~/.tbh_minio_config")
 
     @property
+    def minio_configuration_path(self) -> str:
+        return self._minio_config
+
+    @property
+    def global_template_path(self) -> str:
+        return self._path
+
+    @property
     def bad_symbols_path(self) -> str:
         return self._bad_symbols_path
 
@@ -33,19 +41,18 @@ class Template:
         
         return os.path.exists(self._confirm_ownership_file)
 
-    def _dsl_link_script_name(self, link_name: str, python_script_name: str) -> None:
+    def _dsl_link_script_name(self, link_path: str, python_script_name: str) -> None:
         bin_path = Path(sys.executable).parent.absolute()
         python_script_path = os.path.join(bin_path, python_script_name)
         if not os.path.exists(python_script_path):
             raise RuntimeError(f"Missing python script entry point '{python_script_path}'")
-        link_path = os.path.join(self._hooks_path, link_name)
         link_exists = os.path.exists(link_path)
         link_content = None
         if link_exists:
             link_content = os.readlink(link_path)
         if link_content != python_script_path:
             action = "Updating" if link_exists else "Creating"
-            log.info(f"{action} sym link from '{link_name}' to python entrypoint '{python_script_name}'")
+            log.info(f"{action} sym link from '{link_path}' to python entrypoint '{python_script_name}'")
             os.symlink(src=python_script_path, dst=link_path)
 
 
@@ -73,9 +80,21 @@ class Template:
             ("pre-commit", "tbh-hook-pre-commit"),
             ("pre-push", "tbh-hook-pre-push"),
             ("commit-msg", "tbh-hook-commit-msg"),
+        ):
+            self._dsl_link_script_name(
+                link_path=os.path.join(self._hooks_path, link_name), 
+                python_script_name=python_script_name
+            )
+
+        # Utility commands symlinks
+        for link_name, python_script_name in (
             ("tbh-utils", "tbh-utils"),
         ):
-            self._dsl_link_script_name(link_name=link_name, python_script_name=python_script_name)
+            self._dsl_link_script_name(
+                link_path=os.path.join(self._path, link_name), 
+                python_script_name=python_script_name
+            )
+
 
 
     def _setup_minio_config(self) -> None:

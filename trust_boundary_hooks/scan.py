@@ -30,6 +30,11 @@ class Scanner:
         self._scan_runs: List[ScanRun] = []
 
     def scan_string(self, context: str, value: str) -> None:
+        assert isinstance(value, str)
+
+        # Optimisation
+        value = " ".join(set(value.split()))
+
         matches = tuple(sorted(set(self._search.findall(value))))
         self._scan_runs.append(
             ScanRun(

@@ -67,37 +67,8 @@ def tbh_setup():
 def tbh_hook_pre_commit():
     """ Git hook run before commit
     """
-    from .scan import Scanner
-    import subprocess
-    import os
-    from bs4 import UnicodeDammit
-
-    scanner = Scanner()
-
-    output = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM']).decode('utf-8')
-    files = output.splitlines(keepends=False)
-
-    log.info(f"Looking for bad symbols in files: {files}...")
-
-    for fn in files:
-        with open(fn, "rb") as f:
-            # We use a utility to manage detection and decoding.
-            dammit = UnicodeDammit(f.read())
-
-        log.debug(f"Original Encoding of {fn} = {dammit.original_encoding}")
-
-        scanner.scan_string(context=f"File({fn})", value=dammit.unicode_markup)
-        
-    log.info("Looking for bad symbols in git author metadata...")
-    name = os.environ.get("GIT_AUTHOR_NAME")
-    email = os.environ.get("GIT_AUTHOR_EMAIL")
-    scanner.scan_string(context="GitAuthor", value=name)
-    scanner.scan_string(context="GitEmail", value=email)
-
-    if scanner.detections:
-        log.error(f"Detection of {len(scanner.detections)} bad symbol(s)!")
-        scanner.display_detections()
-        raise errors.BadSymbolsDetectedError("Bad symbols detected in local changes!")
+    from .ops import Operations
+    Operations().pre_commit_hook()
 
 
 @click.command()
@@ -111,18 +82,29 @@ def tbh_hook_pre_commit():
 @click.argument("commit_message_file")
 def tbh_hook_commit_msg(commit_message_file):
     """ Git hook run on commit message """
-    from .scan import Scanner
-    log.info("Looking for bad symbols in the commit message...")
+    from .ops import Operations
 
     with open(commit_message_file, "r") as f:
         message = f.read()
 
-    scanner = Scanner()
-    scanner.scan_string(context="CommitMessage", value=message)
-    if scanner.detections:
-        log.error(f"Detection of {len(scanner.detections)} bad symbol(s)!")
-        scanner.display_detections()
-        raise errors.BadSymbolsDetectedError("Bad symbols detected in commit message!")
+    Operations().commit_message_hook(message=message)
+
+
+@click.command()
+@click.option(
+    "--verbose",
+    is_flag=True,
+    callback=_setup_logging,
+    expose_value=False,
+    is_eager=True,
+    help="Enable DEBUG logging level")
+@click.argument("name")
+@click.argument("location")
+def tbh_hook_pre_push(name, location):
+    """ Git hook run before push """
+    from .ops import Operations
+
+    Operations().pre_push_hook()
 
 
 @click.group(cls=AliasedGroup, invoke_without_command=True)
@@ -145,9 +127,32 @@ def tbh_utils(ctx):
         ctx.exit()
 
 
-@tbh_utils.command("update-bad-symbols")
+@tbh_utils.command("refresh")
 def update_bad_symbols():
     """ Refresh the bad symbol list from Minio object store
     """
     from .template import Template
     Template().update_bad_symbols()
+
+
+@tbh_utils.command("scan")
+def scan():
+    """ Scan git history and untracked files
+    """
+    from .ops import Operations
+    operations = Operations()
+    operations.scan_git_history()
+    operations.scan_untracked_files()
+    operations.scan_cached_files()
+    operations.assert_no_errors()
+
+
+@tbh_utils.command("paths")
+def scan():
+    """ Display the locations of utilities and templates
+    """
+    from .template import Template
+    t = Template()
+    print(f"Bad symbols file: '{t.bad_symbols_path}'")
+    print(f"Global template directory: '{t.global_template_path}'")
+    print(f"Minio Configuration file: '{t.minio_configuration_path}'")

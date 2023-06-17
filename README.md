@@ -16,7 +16,9 @@ Trust boundaries could occur between organisations, or when publishing to public
 If there is information you don't want traversing the trust boundary, then you want to detect it before it is out of your control.
 This utility is a mechanism to do that detection at the point you make local changes to git repositories and before you push them to remote destinations.
 
+## Design
 
+![overview](./docs/overview.png)
 
 ## Usage
 

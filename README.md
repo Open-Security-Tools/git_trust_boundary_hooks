@@ -18,6 +18,17 @@ This utility is a mechanism to do that detection at the point you make local cha
 
 ## Design
 
+The deployment happens in the context of a development environment.
+For example, a profile on your development workstation.
+
+This Python utility acts as a shared implementation of the git hooks for commiting and pushing using git's template mechanism.
+
+Bad symbols are loaded from an external Minio object store and cached locally.
+Credentials for the Minio service and the symmetric key for the local encrypted cache of bad symbols are handled by the `keyring` module.
+
+Cached bad symbols are encrypted using AES128 (GSM).
+The symmetric key is generated during module setup.
+
 ![overview](./docs/overview.png)
 
 ## Usage

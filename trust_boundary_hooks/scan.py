@@ -1,14 +1,14 @@
 import re
-from . import errors
 from typing import List, NamedTuple, Tuple
-import os
-import pathlib
 from .template import Template
+from .crypto import Crypto
 
 
 def load_bad_symbols() -> Tuple[str, ...]:
     with open(Template().bad_symbols_path, "r") as f:
-         content = f.read()
+         ciphertext = f.read()
+
+    content = Crypto().decrypt(ciphertext)
     
     def _l(line: str) -> bool:
         return (not line.startswith("#")) and line.strip()

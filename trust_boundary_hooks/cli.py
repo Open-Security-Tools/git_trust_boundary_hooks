@@ -152,9 +152,10 @@ def print_bad_symbols():
     """ Display the contents of the bad symbols file
     """
     from .template import Template
+    from .crypto import Crypto
     bad_symbols_path = Template().bad_symbols_path
     with open(bad_symbols_path, "r") as f:
-        print(f.read())
+        print(Crypto().decrypt(f.read()))
 
 
 @tbh_utils.command("paths")

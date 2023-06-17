@@ -13,6 +13,8 @@ setup(
         "humanize==4.0.0",
         "minio==7.1.9",
         "click-log==0.4.0",
+        "keyring==23.13.1",
+        "pycryptodome==3.18.0",
         "bs4==0.0.1"
     ],
     entry_points={

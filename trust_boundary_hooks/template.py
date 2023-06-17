@@ -8,6 +8,7 @@ from minio import Minio
 from minio.error import S3Error
 import urllib3
 import subprocess
+from .crypto import Crypto
 
 
 log = logging.getLogger(__name__)
@@ -95,8 +96,6 @@ class Template:
                 python_script_name=python_script_name
             )
 
-
-
     def _setup_minio_config(self) -> None:
         if os.path.exists(self._minio_config):
             return
@@ -163,14 +162,14 @@ class Template:
         old_file_content = None
         if os.path.exists(self._bad_symbols_path):
             with open(self._bad_symbols_path, "r") as f:
-                old_file_content = f.read()
+                old_file_content = Crypto().decrypt(f.read())
 
         if old_file_content is None or old_file_content != file_content:
             action = "Creating" if old_file_content is None else "Updating"
             log.info(f"{action} bad symbols file '{self._bad_symbols_path}'")
 
             with open(self._bad_symbols_path, "w") as f:
-                f.write(file_content)
+                f.write(Crypto().encrypt(file_content))
 
     def _setup_git_global_template_configuration(self) -> None:
         try:

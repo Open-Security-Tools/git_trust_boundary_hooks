@@ -7,6 +7,33 @@ This is a Python utility which uses git hooks (https://git-scm.com/book/en/v2/Cu
 3. File contents
 4. Commit author metadata
 
+## Why would I need this?
+
+Whilst many development activities occur privately, some require communications across trust boundaries.
+
+Trust boundaries could occur between organisations, or when publishing to public (for example open source) repositories.
+
+If there is information you don't want traversing the trust boundary, then you want to detect it before it is out of your control.
+This utility is a mechanism to do that detection at the point you make local changes to git repositories and before you push them to remote destinations.
+
+
+
+## Usage
+
+Any git repositories you initialise or clone after installing the global template will hook the following git operations:
+
+1. `commit-msg`
+2. `pre-commit`
+3. `pre-push`
+
+If the checks against bad symbols fail then the operation is blocked.
+
+In addition, you can scan history, cached and untracked files manually using:
+
+```bash
+.git/tbh-utils scan
+```
+
 ## Installation
 
 Do this per development environment:
@@ -32,21 +59,5 @@ tbh-setup
 # This utility downloads the bad symbol list from a Minio instance.
 # Adapt to your needs...
 
-```
-
-## Usage
-
-Any git repositories you initialise or clone after installing the global template will hook the following git operations:
-
-1. `commit-msg`
-2. `pre-commit`
-3. `pre-push`
-
-If the checks against bad symbols fail then the operation is blocked.
-
-In addition, you can scan history, cached and untracked files manually using:
-
-```bash
-.git/tbh-utils scan
 ```
 

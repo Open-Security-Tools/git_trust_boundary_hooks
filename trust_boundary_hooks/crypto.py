@@ -4,6 +4,7 @@ from Crypto.Random import get_random_bytes
 import base64
 import logging
 from typing import Any, Optional
+import getpass
 
 log = logging.getLogger(__name__)
 
@@ -11,10 +12,27 @@ log = logging.getLogger(__name__)
 class Crypto:
 
     SERVICE_NAME = "tbh-cli"
-    USER_NAME = "dar"
+    DAR_KEY_NAME = "dar"
+    MINIO_SECRET_KEY_NAME = "minio_secret_key"
 
     def __init__(self) -> None:
         pass
+
+    @property
+    def minio_secret_key(self) -> str:
+        key = keyring.get_password(
+            service_name=self.SERVICE_NAME,
+            username=self.MINIO_SECRET_KEY_NAME,
+        )
+        if not key:
+            key = getpass.getpass(prompt="Enter the MINIO secret key: ")
+            assert key
+            keyring.set_password(
+                service_name=self.SERVICE_NAME,
+                username=self.MINIO_SECRET_KEY_NAME,
+                password=key,
+            )
+        return key
 
     def _generate_password(self) -> str:
         # Generate a new key...
@@ -23,12 +41,12 @@ class Crypto:
         password = base64.b64encode(key).decode('ascii')
         keyring.set_password(
             service_name=self.SERVICE_NAME,
-            username=self.USER_NAME,
+            username=self.DAR_KEY_NAME,
             password=password,
         )
         password = keyring.get_password(
             service_name=self.SERVICE_NAME,
-            username=self.USER_NAME,
+            username=self.DAR_KEY_NAME,
         )
         assert password
         return password
@@ -36,7 +54,7 @@ class Crypto:
     def _create_cipher(self, nonce: Optional[bytes] = None) -> Any:
         password = keyring.get_password(
             service_name=self.SERVICE_NAME,
-            username=self.USER_NAME,
+            username=self.DAR_KEY_NAME,
         )
         if (password is None) and (nonce is None):
             password = self._generate_password()

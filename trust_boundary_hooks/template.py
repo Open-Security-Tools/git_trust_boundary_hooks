@@ -101,7 +101,6 @@ class Template:
             return
         example_config = {
             "access_key": "",
-            "secret_key": "",
             "bucket": "",
             "object": "",
             "endpoint": "",
@@ -125,7 +124,7 @@ class Template:
             return v
 
         access_key = _get_val("access_key")
-        secret_key = _get_val("secret_key")
+        secret_key = Crypto().minio_secret_key
         bucket = _get_val("bucket")
         object = _get_val("object")
         endpoint = _get_val("endpoint")

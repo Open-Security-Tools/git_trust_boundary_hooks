@@ -173,7 +173,12 @@ class Template:
                 f.write(file_content)
 
     def _setup_git_global_template_configuration(self) -> None:
-        old_value = subprocess.check_output(["git", "config", "--global", "init.templateDir"]).decode('utf-8').strip()
+        try:
+            old_value = subprocess.check_output(["git", "config", "--global", "init.templateDir"]).decode('utf-8').strip()
+        except subprocess.CalledProcessError:
+            # If the template directory is not initialised yet, then this will return with an error.
+            old_value = ""
+
         if old_value != self._path:
             log.info(f"Setting the git global template directory to '{self._path}'")
             _ = subprocess.check_output(["git", "config", "--global", "init.templateDir", self._path])

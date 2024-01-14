@@ -32,8 +32,8 @@ class Scanner:
     def scan_string(self, context: str, value: str) -> None:
         assert isinstance(value, str)
 
-        # Optimisation
-        value = " ".join(set(value.split()))
+        # Sadly we cannot optimise this search by simplifying to a set of words due to the potential for
+        # regex containing white space
 
         matches = tuple(sorted(set(self._search.findall(value))))
         self._scan_runs.append(
